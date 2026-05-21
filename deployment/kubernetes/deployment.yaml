@@ -1,0 +1,222 @@
+# Agent Memory Toolkit - Kubernetes Deployment
+# Deploys the API server with horizontal scaling support
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amt-api
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: agent-memory-toolkit
+      component: api
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: agent-memory-toolkit
+        component: api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
+        prometheus.io/path: "/metrics"
+    spec:
+      serviceAccountName: amt-api
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      
+      # Topology spread for high availability
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels:
+              app: agent-memory-toolkit
+              component: api
+      
+      containers:
+        - name: api
+          image: agent-memory-toolkit:latest
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 8000
+              protocol: TCP
+          
+          # Environment from ConfigMap
+          envFrom:
+            - configMapRef:
+                name: amt-config
+          
+          # Sensitive environment from Secret
+          env:
+            - name: AMT_JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: amt-secrets
+                  key: AMT_JWT_SECRET
+            - name: AMT_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: amt-secrets
+                  key: AMT_ADMIN_PASSWORD
+            - name: AMT_AGENT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: amt-secrets
+                  key: AMT_AGENT_PASSWORD
+          
+          # Resource limits
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "2Gi"
+          
+          # Health probes
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
+          
+          # Volume mounts
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          
+          # Security context
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+      
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: amt-data-pvc
+
+---
+# Redis Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amt-redis
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agent-memory-toolkit
+      component: redis
+  template:
+    metadata:
+      labels:
+        app: agent-memory-toolkit
+        component: redis
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - name: redis
+              containerPort: 6379
+          
+          args:
+            - "redis-server"
+            - "--appendonly"
+            - "yes"
+            - "--maxmemory"
+            - "256mb"
+            - "--maxmemory-policy"
+            - "allkeys-lru"
+          
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
+      
+      volumes:
+        - name: redis-data
+          persistentVolumeClaim:
+            claimName: amt-redis-pvc

@@ -1,0 +1,150 @@
+# Agent Memory Toolkit - Horizontal Pod Autoscaler
+# Automatically scales API pods based on CPU/memory usage
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: amt-api-hpa
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: api
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: amt-api
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+        - type: Percent
+          value: 50
+          periodSeconds: 60
+        - type: Pods
+          value: 2
+          periodSeconds: 60
+      selectPolicy: Min
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 30
+        - type: Pods
+          value: 4
+          periodSeconds: 30
+      selectPolicy: Max
+
+---
+# Pod Disruption Budget
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: amt-api-pdb
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: agent-memory-toolkit
+      component: api
+
+---
+# Network Policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: amt-api-network-policy
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: api
+spec:
+  podSelector:
+    matchLabels:
+      app: agent-memory-toolkit
+      component: api
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from ingress controller
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8000
+    # Allow traffic from within the namespace
+    - from:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 8000
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels:
+              k8s-app: kube-dns
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow Redis access
+    - to:
+        - podSelector:
+            matchLabels:
+              app: agent-memory-toolkit
+              component: redis
+      ports:
+        - protocol: TCP
+          port: 6379
+
+---
+# Redis Network Policy
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: amt-redis-network-policy
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: redis
+spec:
+  podSelector:
+    matchLabels:
+      app: agent-memory-toolkit
+      component: redis
+  policyTypes:
+    - Ingress
+  ingress:
+    # Only allow traffic from API pods
+    - from:
+        - podSelector:
+            matchLabels:
+              app: agent-memory-toolkit
+              component: api
+      ports:
+        - protocol: TCP
+          port: 6379

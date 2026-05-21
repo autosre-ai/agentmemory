@@ -1,0 +1,76 @@
+# Agent Memory Toolkit - Kubernetes Ingress
+# Ingress configuration for external HTTP/HTTPS access
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: amt-ingress
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: ingress
+  annotations:
+    # NGINX Ingress Controller annotations
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    
+    # Rate limiting
+    nginx.ingress.kubernetes.io/limit-rps: "100"
+    nginx.ingress.kubernetes.io/limit-connections: "50"
+    
+    # CORS headers
+    nginx.ingress.kubernetes.io/enable-cors: "true"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization"
+    
+    # TLS with cert-manager
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - amt.example.com
+      secretName: amt-tls-secret
+  rules:
+    - host: amt.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: amt-api
+                port:
+                  number: 80
+
+---
+# Optional: Ingress for development/staging
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: amt-ingress-dev
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: ingress
+    environment: development
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: amt-dev.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: amt-api
+                port:
+                  number: 80

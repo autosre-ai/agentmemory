@@ -1,0 +1,35 @@
+# Agent Memory Toolkit - Kubernetes ConfigMap
+# Configuration data for API server and related services
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: amt-config
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: config
+data:
+  # Server configuration
+  AMT_HOST: "0.0.0.0"
+  AMT_PORT: "8000"
+  AMT_WORKERS: "4"
+  AMT_DEBUG: "false"
+  AMT_LOG_LEVEL: "info"
+  
+  # Database path (in persistent volume)
+  AMT_DB_PATH: "/data/agent_memory.db"
+  
+  # JWT configuration
+  AMT_JWT_EXPIRATION: "60"
+  
+  # Rate limiting
+  AMT_RATE_LIMIT: "true"
+  AMT_RATE_LIMIT_REQUESTS: "100"
+  AMT_RATE_LIMIT_WINDOW: "60"
+  
+  # Redis URL (internal service)
+  AMT_REDIS_URL: "redis://amt-redis:6379/0"
+  AMT_CACHE_TTL: "3600"
+  
+  # Health check settings
+  AMT_HEALTH_CHECK_ENABLED: "true"

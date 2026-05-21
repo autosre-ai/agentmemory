@@ -1,0 +1,101 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentmemory"
+version = "0.1.0"
+description = "Local-first memory layer for AI agents with SQLite + FTS5"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+keywords = ["ai", "agents", "memory", "sqlite", "fts5", "embeddings", "vector-search"]
+authors = [
+    {name = "Agent Memory Toolkit Contributors"}
+]
+
+dependencies = [
+    "click>=8.0.0",
+    "filelock>=3.0.0",
+]
+
+[project.optional-dependencies]
+embeddings = [
+    "sentence-transformers>=2.2.0",
+    "torch>=2.0.0",
+]
+compression = [
+    "tiktoken>=0.5.0",
+]
+mcp = [
+    "mcp>=1.0.0",
+]
+api = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "pyjwt>=2.8.0",
+    "pydantic>=2.5.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.23.0",
+    "httpx>=0.26.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+]
+langchain = [
+    "langchain-core>=0.1.0",
+]
+llamaindex = [
+    "llama-index-core>=0.10.0",
+]
+all = [
+    "agentmemory[embeddings,compression,mcp,api,dev]",
+]
+
+[project.scripts]
+amt = "agent_memory.cli:main"
+amt-mcp = "agent_memory.mcp.cli:main"
+amt-hermes = "agent_memory.hermes_plugin.cli:cli"
+
+[project.urls]
+Homepage = "https://github.com/agentmemory/agentmemory"
+Documentation = "https://agentmemory.readthedocs.io"
+Repository = "https://github.com/agentmemory/agentmemory"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agent_memory*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.black]
+line-length = 88
+target-version = ["py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+select = ["E", "F", "I", "N", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true

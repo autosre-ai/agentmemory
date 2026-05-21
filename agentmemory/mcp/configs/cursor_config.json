@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "agent-memory-toolkit": {
+      "command": "amt",
+      "args": ["mcp", "serve", "--db", "~/agent_memory.db"],
+      "env": {}
+    }
+  }
+}

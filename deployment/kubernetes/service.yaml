@@ -1,0 +1,91 @@
+# Agent Memory Toolkit - Kubernetes Services
+# Service definitions for internal and external access
+
+---
+# API Service - ClusterIP for internal access
+apiVersion: v1
+kind: Service
+metadata:
+  name: amt-api
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: api
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+      protocol: TCP
+  selector:
+    app: agent-memory-toolkit
+    component: api
+
+---
+# API Service - LoadBalancer for external access
+apiVersion: v1
+kind: Service
+metadata:
+  name: amt-api-external
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: api
+  annotations:
+    # Cloud provider specific annotations
+    # AWS: service.beta.kubernetes.io/aws-load-balancer-type: nlb
+    # GCP: cloud.google.com/load-balancer-type: External
+    # Azure: service.beta.kubernetes.io/azure-load-balancer-internal: "false"
+    service.beta.kubernetes.io/backend-protocol: "HTTP"
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+      protocol: TCP
+  selector:
+    app: agent-memory-toolkit
+    component: api
+
+---
+# Redis Service - ClusterIP (internal only)
+apiVersion: v1
+kind: Service
+metadata:
+  name: amt-redis
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: redis
+spec:
+  type: ClusterIP
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+      protocol: TCP
+  selector:
+    app: agent-memory-toolkit
+    component: redis
+
+---
+# Headless Service for StatefulSet (if using StatefulSet for Redis)
+apiVersion: v1
+kind: Service
+metadata:
+  name: amt-redis-headless
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: redis
+spec:
+  clusterIP: None
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+  selector:
+    app: agent-memory-toolkit
+    component: redis

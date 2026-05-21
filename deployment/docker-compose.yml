@@ -1,0 +1,189 @@
+# Agent Memory Toolkit Docker Compose
+# Multi-container setup with API server, Redis cache, and optional services
+
+services:
+  # ============================================
+  # API Server
+  # ============================================
+  api:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+      args:
+        INSTALL_EMBEDDINGS: "false"
+        INSTALL_COMPRESSION: "true"
+    image: agent-memory-toolkit:latest
+    container_name: amt-api
+    restart: unless-stopped
+    ports:
+      - "${AMT_PORT:-8000}:8000"
+    environment:
+      # Server configuration
+      AMT_HOST: "0.0.0.0"
+      AMT_PORT: "8000"
+      AMT_WORKERS: "${AMT_WORKERS:-4}"
+      AMT_DEBUG: "${AMT_DEBUG:-false}"
+      AMT_LOG_LEVEL: "${AMT_LOG_LEVEL:-info}"
+      
+      # Database configuration
+      AMT_DB_PATH: "/data/agent_memory.db"
+      
+      # Authentication
+      AMT_JWT_SECRET: "${AMT_JWT_SECRET:?AMT_JWT_SECRET is required}"
+      AMT_JWT_EXPIRATION: "${AMT_JWT_EXPIRATION:-60}"
+      AMT_ADMIN_PASSWORD: "${AMT_ADMIN_PASSWORD:-admin}"
+      AMT_AGENT_PASSWORD: "${AMT_AGENT_PASSWORD:-agent}"
+      
+      # Rate limiting
+      AMT_RATE_LIMIT: "${AMT_RATE_LIMIT:-true}"
+      AMT_RATE_LIMIT_REQUESTS: "${AMT_RATE_LIMIT_REQUESTS:-100}"
+      AMT_RATE_LIMIT_WINDOW: "${AMT_RATE_LIMIT_WINDOW:-60}"
+      
+      # Redis cache
+      AMT_REDIS_URL: "redis://redis:6379/0"
+      AMT_CACHE_TTL: "${AMT_CACHE_TTL:-3600}"
+    volumes:
+      - amt-data:/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - amt-network
+    deploy:
+      resources:
+        limits:
+          cpus: "${API_CPU_LIMIT:-2.0}"
+          memory: "${API_MEMORY_LIMIT:-2G}"
+        reservations:
+          cpus: "${API_CPU_RESERVE:-0.5}"
+          memory: "${API_MEMORY_RESERVE:-512M}"
+
+  # ============================================
+  # Redis Cache
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    container_name: amt-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory ${REDIS_MAXMEMORY:-256mb}
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+      --loglevel notice
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - amt-network
+    deploy:
+      resources:
+        limits:
+          cpus: "${REDIS_CPU_LIMIT:-0.5}"
+          memory: "${REDIS_MEMORY_LIMIT:-512M}"
+        reservations:
+          cpus: "${REDIS_CPU_RESERVE:-0.1}"
+          memory: "${REDIS_MEMORY_RESERVE:-128M}"
+
+  # ============================================
+  # Optional: Redis Commander (Admin UI)
+  # ============================================
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: amt-redis-commander
+    profiles: ["admin"]  # Only starts with --profile admin
+    restart: unless-stopped
+    ports:
+      - "${REDIS_COMMANDER_PORT:-8081}:8081"
+    environment:
+      REDIS_HOSTS: "local:redis:6379"
+      HTTP_USER: "${REDIS_COMMANDER_USER:-admin}"
+      HTTP_PASSWORD: "${REDIS_COMMANDER_PASSWORD:-admin}"
+    depends_on:
+      redis:
+        condition: service_healthy
+    networks:
+      - amt-network
+
+  # ============================================
+  # Optional: Prometheus (Metrics)
+  # ============================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: amt-prometheus
+    profiles: ["monitoring"]  # Only starts with --profile monitoring
+    restart: unless-stopped
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+    networks:
+      - amt-network
+
+  # ============================================
+  # Optional: Grafana (Dashboards)
+  # ============================================
+  grafana:
+    image: grafana/grafana:latest
+    container_name: amt-grafana
+    profiles: ["monitoring"]  # Only starts with --profile monitoring
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-3000}:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: "${GRAFANA_ADMIN_USER:-admin}"
+      GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_ADMIN_PASSWORD:-admin}"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - amt-network
+
+# ============================================
+# Volumes
+# ============================================
+volumes:
+  amt-data:
+    driver: local
+    name: amt-data
+  redis-data:
+    driver: local
+    name: amt-redis-data
+  prometheus-data:
+    driver: local
+    name: amt-prometheus-data
+  grafana-data:
+    driver: local
+    name: amt-grafana-data
+
+# ============================================
+# Networks
+# ============================================
+networks:
+  amt-network:
+    driver: bridge
+    name: amt-network
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16

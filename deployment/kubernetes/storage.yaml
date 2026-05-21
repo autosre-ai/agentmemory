@@ -1,0 +1,72 @@
+# Agent Memory Toolkit - Kubernetes Persistent Volumes
+# Storage configuration for SQLite database and Redis
+
+---
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: agent-memory
+  labels:
+    app: agent-memory-toolkit
+
+---
+# Service Account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: amt-api
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: api
+
+---
+# Storage Class (optional - use default if available)
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: amt-storage
+  labels:
+    app: agent-memory-toolkit
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+
+---
+# PersistentVolumeClaim for API data (SQLite)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: amt-data-pvc
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: api
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  # Uncomment to use specific storage class
+  # storageClassName: amt-storage
+
+---
+# PersistentVolumeClaim for Redis data
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: amt-redis-pvc
+  namespace: agent-memory
+  labels:
+    app: agent-memory-toolkit
+    component: redis
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+  # Uncomment to use specific storage class
+  # storageClassName: amt-storage

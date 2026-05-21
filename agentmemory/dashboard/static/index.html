@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Memory Toolkit - Analytics Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Chart.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+</head>
+<body>
+    <header class="dashboard-header">
+        <div class="header-content">
+            <h1>🧠 Agent Memory Toolkit</h1>
+            <span class="subtitle">Analytics Dashboard</span>
+        </div>
+        <div class="header-actions">
+            <select id="time-range" class="time-range-select">
+                <option value="7">Last 7 days</option>
+                <option value="30" selected>Last 30 days</option>
+                <option value="90">Last 90 days</option>
+            </select>
+            <button id="refresh-btn" class="refresh-btn">
+                🔄 Refresh
+            </button>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <!-- Stats Cards -->
+        <section class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon">📝</div>
+                <div class="stat-content">
+                    <h3>Total Memories</h3>
+                    <div class="stat-value" id="total-memories">-</div>
+                    <div class="stat-detail">
+                        <span class="active" id="active-memories">-</span> active,
+                        <span class="deleted" id="deleted-memories">-</span> deleted
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🌳</div>
+                <div class="stat-content">
+                    <h3>Branches</h3>
+                    <div class="stat-value" id="total-branches">-</div>
+                    <div class="stat-detail">
+                        <span id="total-commits">-</span> commits
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🔍</div>
+                <div class="stat-content">
+                    <h3>Searches Today</h3>
+                    <div class="stat-value" id="searches-today">-</div>
+                    <div class="stat-detail">
+                        <span id="searches-week">-</span> this week
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💾</div>
+                <div class="stat-content">
+                    <h3>Storage</h3>
+                    <div class="stat-value" id="storage-size">-</div>
+                    <div class="stat-detail">
+                        Avg memory: <span id="avg-memory-size">-</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Row 1 -->
+        <section class="charts-row">
+            <div class="chart-card large">
+                <h3>📊 Memory Count Over Time</h3>
+                <div class="chart-container">
+                    <canvas id="memories-chart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>🎯 Domain Distribution</h3>
+                <div class="chart-container">
+                    <canvas id="domains-chart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Row 2 -->
+        <section class="charts-row">
+            <div class="chart-card">
+                <h3>🔎 Search Trends</h3>
+                <div class="chart-container">
+                    <canvas id="searches-chart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3>📈 Top Search Queries</h3>
+                <div class="chart-container" id="top-queries-container">
+                    <ul class="top-queries-list" id="top-queries-list">
+                        <!-- Populated by JavaScript -->
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Row 3 -->
+        <section class="charts-row">
+            <div class="chart-card">
+                <h3>💿 Storage Breakdown</h3>
+                <div class="chart-container">
+                    <canvas id="storage-chart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card large">
+                <h3>🌿 Branch Comparison</h3>
+                <div class="chart-container">
+                    <canvas id="branches-chart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Branch Details Table -->
+        <section class="table-section">
+            <h3>📋 Branch Details</h3>
+            <div class="table-container">
+                <table class="data-table" id="branches-table">
+                    <thead>
+                        <tr>
+                            <th>Branch</th>
+                            <th>Memories</th>
+                            <th>Commits</th>
+                            <th>Created</th>
+                            <th>Last Commit</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="branches-table-body">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer class="dashboard-footer">
+        <p>Agent Memory Toolkit v0.1.0 | 
+           Generated: <span id="generated-at">-</span> |
+           <a href="https://github.com/your-repo/agent-memory-toolkit" target="_blank">GitHub</a>
+        </p>
+    </footer>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

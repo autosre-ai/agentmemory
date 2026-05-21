@@ -1,0 +1,112 @@
+# Agent Memory Toolkit - Hermes Plugin Manifest
+# Plugin type: memory provider
+# Docs: https://github.com/your-org/agent-memory-toolkit
+
+name: agent-memory-toolkit
+version: "0.1.0"
+description: |
+  Local-first persistent memory for AI agents using the Agent Memory Toolkit.
+  Features SQLite + FTS5 storage, optional vector search, structured extraction
+  across 6 cognitive domains, security validation, and context compression.
+author: Agent Memory Toolkit Contributors
+license: MIT
+
+# Plugin kind - exclusive means only one memory provider active at a time
+kind: exclusive
+
+# Entry point for plugin registration
+entry_point: agent_memory.hermes_plugin:register
+
+# Environment variables (optional - config can use JSON file instead)
+requires_env: []
+
+# Tools provided by this plugin
+provides_tools:
+  - name: memory_add
+    description: Store a new memory/fact about the user or context
+  - name: memory_query
+    description: Search stored memories by meaning or keywords
+  - name: memory_extract
+    description: Extract structured memories from text or conversation
+  - name: memory_compress
+    description: Compress conversation history to fit within token budget
+  - name: memory_profile
+    description: Get a summary of stored memories about the user
+
+# Hooks this plugin registers
+provides_hooks:
+  - session_start  # Initialize memory store on session start
+  - pre_turn       # Prefetch relevant memories before each turn
+  - post_turn      # Extract and store memories after each turn
+
+# CLI commands provided (installed as `amt-hermes`)
+cli:
+  group: amt-hermes
+  commands:
+    - name: add
+      description: Add a new memory
+    - name: search
+      description: Search stored memories
+    - name: list
+      description: List recent memories
+    - name: install
+      description: Install plugin into Hermes
+    - name: uninstall
+      description: Remove plugin from Hermes
+    - name: setup
+      description: Interactive setup wizard
+    - name: status
+      description: Show plugin status
+
+# Configuration schema for setup wizard
+config:
+  - key: db_path
+    description: Path to SQLite database
+    type: string
+    default: "~/.hermes/agent_memory.db"
+  - key: auto_embed
+    description: Enable vector embeddings for semantic search
+    type: boolean
+    default: false
+  - key: embedding_model
+    description: Embedding model (requires auto_embed=true)
+    type: string
+    default: "all-MiniLM-L6-v2"
+  - key: extraction_mode
+    description: Memory extraction mode (rule=fast, llm=accurate, hybrid=balanced)
+    type: string
+    default: "rule"
+    choices: ["rule", "llm", "hybrid"]
+  - key: security_level
+    description: Security validation level for stored memories
+    type: string
+    default: "medium"
+    choices: ["minimal", "low", "medium", "high", "paranoid"]
+  - key: max_results
+    description: Maximum search results to return by default
+    type: integer
+    default: 10
+
+# Context injection settings
+context_injection:
+  enabled: true
+  frequency: every-turn  # every-turn, first-turn, on-demand
+  max_memories: 5
+  min_score: 0.3
+  max_tokens: 500
+
+# Dependencies
+dependencies:
+  python: ">=3.11"
+  packages:
+    - agent-memory-toolkit>=0.1.0
+    - click>=8.0
+  optional:
+    - sentence-transformers  # For vector search
+    - openai  # For LLM-based extraction
+    - anthropic  # For Claude-based extraction
+
+# Documentation links
+docs:
+  readme: https://github.com/your-org/agent-memory-toolkit
+  api: https://github.com/your-org/agent-memory-toolkit/blob/main/README.md#api-reference
