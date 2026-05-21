@@ -2,15 +2,19 @@
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["agentmemory*"]
+
 [project]
 name = "agentmemory"
 version = "0.1.0"
-description = "Local-first memory layer for AI agents with SQLite + FTS5"
+description = "Hybrid retrieval memory for AI agents - BM25 + vectors + knowledge graph with RRF fusion"
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
@@ -19,9 +23,9 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
-keywords = ["ai", "agents", "memory", "sqlite", "fts5", "embeddings", "vector-search"]
+keywords = ["ai", "agents", "memory", "sqlite", "fts5", "embeddings", "vector-search", "bm25", "rag", "knowledge-graph"]
 authors = [
-    {name = "Agent Memory Toolkit Contributors"}
+    {name = "Sri Sainath Adusumilli", email = "sri@autosre.ai"}
 ]
 
 dependencies = [
@@ -62,22 +66,18 @@ llamaindex = [
     "llama-index-core>=0.10.0",
 ]
 all = [
-    "agentmemory[embeddings,compression,mcp,api,dev]",
+    "agentmemory[embeddings,compression,mcp,api,dev,langchain,llamaindex]",
 ]
 
 [project.scripts]
-amt = "agent_memory.cli:main"
-amt-mcp = "agent_memory.mcp.cli:main"
-amt-hermes = "agent_memory.hermes_plugin.cli:cli"
+agentmemory = "agentmemory.cli:main"
+agentmemory-mcp = "agentmemory.mcp.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/agentmemory/agentmemory"
-Documentation = "https://agentmemory.readthedocs.io"
-Repository = "https://github.com/agentmemory/agentmemory"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["agent_memory*"]
+Homepage = "https://github.com/autosre-ai/agentmemory"
+Documentation = "https://github.com/autosre-ai/agentmemory#readme"
+Repository = "https://github.com/autosre-ai/agentmemory"
+Issues = "https://github.com/autosre-ai/agentmemory/issues"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
