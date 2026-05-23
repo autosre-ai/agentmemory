@@ -1,12 +1,12 @@
 <div align="center">
 
-# 🧠 agentmemory
+# 🧠 agent-memory-toolkit
 
 **Hybrid retrieval memory for AI agents that actually remembers.**
 
-[![GitHub stars](https://img.shields.io/github/stars/autosre-ai/agentmemory?style=social)](https://github.com/autosre-ai/agentmemory)
-[![CI](https://img.shields.io/github/actions/workflow/status/autosre-ai/agentmemory/ci.yml?branch=main&label=CI)](https://github.com/autosre-ai/agentmemory/actions)
-[![PyPI](https://img.shields.io/pypi/v/agentmemory?color=blue)](https://pypi.org/project/agentmemory/)
+[![GitHub stars](https://img.shields.io/github/stars/autosre-ai/agent-memory-toolkit?style=social)](https://github.com/autosre-ai/agent-memory-toolkit)
+[![CI](https://img.shields.io/github/actions/workflow/status/autosre-ai/agent-memory-toolkit/ci.yml?branch=main&label=CI)](https://github.com/autosre-ai/agent-memory-toolkit/actions)
+[![PyPI](https://img.shields.io/pypi/v/agent-memory-toolkit?color=blue)](https://pypi.org/project/agent-memory-toolkit/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
@@ -18,11 +18,11 @@
 
 ---
 
-## 🎯 Why agentmemory?
+## 🎯 Why agent-memory-toolkit?
 
 Most agent memory is just "dump everything in a vector DB and pray." That doesn't scale.
 
-**agentmemory** uses **hybrid retrieval**:
+**agent-memory-toolkit** uses **hybrid retrieval**:
 - 🔍 **BM25** for exact keyword matches
 - 🧬 **Vector search** for semantic similarity  
 - 🕸️ **Knowledge graph** for relational context
@@ -61,12 +61,12 @@ No cloud. No API calls for storage. Everything runs on SQLite.
 ## 📦 Install
 
 ```bash
-pip install agentmemory
+pip install agent-memory-toolkit
 ```
 
 With all features:
 ```bash
-pip install agentmemory[all]
+pip install agent-memory-toolkit[all]
 ```
 
 ---
@@ -74,7 +74,7 @@ pip install agentmemory[all]
 ## 🚀 Quick Start
 
 ```python
-from agentmemory import MemoryStore
+from agent_memory_toolkit import MemoryStore
 
 # Create a local memory store
 store = MemoryStore("memories.db", auto_embed=True)
@@ -94,7 +94,7 @@ for r in results:
 ### Extract Structured Memories
 
 ```python
-from agentmemory import MemoryExtractor
+from agent_memory_toolkit import MemoryExtractor
 
 extractor = MemoryExtractor()
 
@@ -149,7 +149,7 @@ for m in memories.memories:
 
 ## 📊 Benchmarks
 
-| Metric | agentmemory | Vector-only | BM25-only |
+| Metric | agent-memory-toolkit | Vector-only | BM25-only |
 |--------|-------------|-------------|-----------|
 | **R@5 (LongMemEval-S)** | **95.2%** | 78.4% | 71.2% |
 | **Latency (p50)** | 8ms | 5ms | 0.5ms |
@@ -176,7 +176,7 @@ Hybrid retrieval with RRF fusion significantly outperforms single-strategy appro
 ### MemoryStore
 
 ```python
-from agentmemory import MemoryStore
+from agent_memory_toolkit import MemoryStore
 
 store = MemoryStore(
     db_path="memories.db",
@@ -199,7 +199,7 @@ store.search_vector(query)          # Vectors only
 ### MemoryExtractor
 
 ```python
-from agentmemory import MemoryExtractor, CognitiveDomain
+from agent_memory_toolkit import MemoryExtractor, CognitiveDomain
 
 extractor = MemoryExtractor(mode="rule")  # or "llm", "hybrid"
 result = extractor.extract(text)
@@ -208,7 +208,7 @@ result = extractor.extract(text)
 ### MemoryGuard
 
 ```python
-from agentmemory import MemoryGuard, SecurityLevel
+from agent_memory_toolkit import MemoryGuard, SecurityLevel
 
 guard = MemoryGuard(level=SecurityLevel.HIGH)
 result = guard.validate_content(content)
@@ -220,7 +220,7 @@ if result.is_safe:
 ### TeamMemoryStore
 
 ```python
-from agentmemory.team import TeamMemoryStore
+from agent_memory_toolkit.team import TeamMemoryStore
 
 store = TeamMemoryStore("team.db", agent_id="alice")
 
@@ -249,7 +249,7 @@ See [`examples/`](examples/) for working demos:
 
 ```bash
 pytest
-pytest --cov=agentmemory
+pytest --cov=agent_memory_toolkit
 ```
 
 ---
@@ -272,7 +272,7 @@ MIT License — see [LICENSE](LICENSE)
 
 <div align="center">
 
-**[⭐ Star us on GitHub](https://github.com/autosre-ai/agentmemory)** — it helps!
+**[⭐ Star us on GitHub](https://github.com/autosre-ai/agent-memory-toolkit)** — it helps!
 
 Built with ❤️ by [autosre.ai](https://autosre.ai)
 

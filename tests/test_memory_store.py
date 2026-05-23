@@ -6,7 +6,7 @@ import tempfile
 from pathlib import Path
 from datetime import datetime
 
-from agentmemory.store import (
+from agent_memory_toolkit.store import (
     MemoryStore,
     Memory,
     MemoryMetadata,

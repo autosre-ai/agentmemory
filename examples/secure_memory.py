@@ -23,7 +23,7 @@ from datetime import datetime
 # Add parent to path for demo
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from agentmemory import (
+from agent_memory_toolkit import (
     MemoryGuard,
     SecurityLevel,
     SecurityConfig,

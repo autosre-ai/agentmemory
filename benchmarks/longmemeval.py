@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-LongMemEval-S Benchmark Simulation for agentmemory.
+LongMemEval-S Benchmark Simulation for agent-memory-toolkit.
 
 This script simulates the LongMemEval-S benchmark to evaluate retrieval accuracy
-of the agentmemory hybrid search system. LongMemEval-S tests long-term memory
+of the agent-memory-toolkit hybrid search system. LongMemEval-S tests long-term memory
 retrieval across conversations spanning multiple sessions with temporal context.
 
 The benchmark measures:
@@ -33,7 +33,7 @@ from typing import Any
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from agentmemory import MemoryStore
+from agent_memory_toolkit import MemoryStore
 
 
 # =============================================================================
@@ -446,7 +446,7 @@ def print_results(result: BenchmarkResult, method_name: str = "") -> None:
 def main():
     """Main entry point for the benchmark."""
     parser = argparse.ArgumentParser(
-        description="LongMemEval-S Benchmark for agentmemory hybrid search"
+        description="LongMemEval-S Benchmark for agent-memory-toolkit hybrid search"
     )
     parser.add_argument(
         "--samples", "-n", type=int, default=50,
@@ -491,7 +491,7 @@ def main():
     
     log(f"\n{'#'*60}")
     log(f"#  LongMemEval-S Benchmark Simulation")
-    log(f"#  Testing agentmemory hybrid retrieval")
+    log(f"#  Testing agent-memory-toolkit hybrid retrieval")
     log(f"{'#'*60}")
     log(f"\nConfiguration:")
     log(f"  Total facts available: {len(BENCHMARK_FACTS)}")

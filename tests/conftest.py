@@ -1,7 +1,7 @@
 """Pytest configuration and fixtures."""
 
 import pytest
-from agentmemory.store import MemoryStore
+from agent_memory_toolkit.store import MemoryStore
 
 
 @pytest.fixture

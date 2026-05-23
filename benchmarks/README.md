@@ -1,10 +1,10 @@
 # Benchmarks
 
-This directory contains benchmark scripts for evaluating the performance of `agentmemory`.
+This directory contains benchmark scripts for evaluating the performance of `agent-memory-toolkit`.
 
 ## LongMemEval-S Benchmark
 
-The `longmemeval.py` script simulates the LongMemEval-S benchmark to evaluate retrieval accuracy of the agentmemory hybrid search system.
+The `longmemeval.py` script simulates the LongMemEval-S benchmark to evaluate retrieval accuracy of the agent-memory-toolkit hybrid search system.
 
 ### What is LongMemEval-S?
 
@@ -26,7 +26,7 @@ LongMemEval-S tests long-term memory retrieval across conversations spanning mul
 ### Running the Benchmark
 
 ```bash
-# Install agentmemory with embedding support
+# Install agent-memory-toolkit with embedding support
 pip install -e ".[all]"
 
 # Run with default settings

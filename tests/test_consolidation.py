@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from unittest.mock import Mock, MagicMock, patch
 import json
 
-from agentmemory.consolidation import (
+from agent_memory_toolkit.consolidation import (
     # Models
     ConsolidationStrategy,
     DeduplicationStrategy,

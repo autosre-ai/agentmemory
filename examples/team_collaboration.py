@@ -18,8 +18,8 @@ from pathlib import Path
 
 sys.path.insert(0, "..")
 
-from agentmemory.team import TeamMemoryStore
-from agentmemory.team.models import ConflictResolution, EventType
+from agent_memory_toolkit.team import TeamMemoryStore
+from agent_memory_toolkit.team.models import ConflictResolution, EventType
 
 
 def demo_basic_team():
@@ -266,7 +266,7 @@ def demo_access_control():
     print("6. ACCESS CONTROL")
     print("=" * 60)
     
-    from agentmemory.team.models import Permission
+    from agent_memory_toolkit.team.models import Permission
     
     store = TeamMemoryStore(":memory:", agent_id="admin")
     

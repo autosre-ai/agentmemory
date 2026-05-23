@@ -10,7 +10,7 @@ import asyncio
 import sys
 sys.path.insert(0, "..")
 
-from agentmemory.mcp.server import create_mcp_server, MCPConfig
+from agent_memory_toolkit.mcp.server import create_mcp_server, MCPConfig
 
 
 async def demo_mcp_tools():

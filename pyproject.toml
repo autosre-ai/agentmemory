@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["agentmemory*"]
+include = ["agent_memory_toolkit*"]
 
 [project]
-name = "agentmemory"
+name = "agent-memory-toolkit"
 version = "0.1.0"
 description = "Hybrid retrieval memory for AI agents - BM25 + vectors + knowledge graph with RRF fusion"
 readme = "README.md"
@@ -66,18 +66,19 @@ llamaindex = [
     "llama-index-core>=0.10.0",
 ]
 all = [
-    "agentmemory[embeddings,compression,mcp,api,dev,langchain,llamaindex]",
+    "agent-memory-toolkit[embeddings,compression,mcp,api,dev,langchain,llamaindex]",
 ]
 
 [project.scripts]
-agentmemory = "agentmemory.cli:main"
-agentmemory-mcp = "agentmemory.mcp.cli:main"
+amt = "agent_memory_toolkit.cli:main"
+agent-memory-toolkit = "agent_memory_toolkit.cli:main"
+agent-memory-toolkit-mcp = "agent_memory_toolkit.mcp.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/autosre-ai/agentmemory"
-Documentation = "https://github.com/autosre-ai/agentmemory#readme"
-Repository = "https://github.com/autosre-ai/agentmemory"
-Issues = "https://github.com/autosre-ai/agentmemory/issues"
+Homepage = "https://github.com/autosre-ai/agent-memory-toolkit"
+Documentation = "https://github.com/autosre-ai/agent-memory-toolkit#readme"
+Repository = "https://github.com/autosre-ai/agent-memory-toolkit"
+Issues = "https://github.com/autosre-ai/agent-memory-toolkit/issues"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -7,8 +7,8 @@ Requirements:
     pip install agent-memory-toolkit langchain langchain-openai
 """
 
-from agentmemory import MemoryStore
-from agentmemory.integrations.langchain import (
+from agent_memory_toolkit import MemoryStore
+from agent_memory_toolkit.integrations.langchain import (
     AgentMemoryToolkitMemory,
     AgentMemoryToolkitChatMemory,
 )

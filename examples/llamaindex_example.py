@@ -7,8 +7,8 @@ Requirements:
     pip install agent-memory-toolkit llama-index-core llama-index-llms-openai
 """
 
-from agentmemory import MemoryStore
-from agentmemory.integrations.llamaindex import (
+from agent_memory_toolkit import MemoryStore
+from agent_memory_toolkit.integrations.llamaindex import (
     AgentMemoryToolkitStore,
     AgentMemoryToolkitVectorStore,
 )

@@ -12,13 +12,13 @@ Demonstrates core functionality:
 import sys
 sys.path.insert(0, "..")
 
-from agentmemory import (
+from agent_memory_toolkit import (
     MemoryExtractor,
     CognitiveDomain,
     Memory,
     ExtractionResult,
 )
-from agentmemory.store import MemoryStore
+from agent_memory_toolkit.store import MemoryStore
 
 
 def demo_extraction():

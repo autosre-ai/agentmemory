@@ -1,4 +1,4 @@
-"""Benchmarks for agentmemory retrieval evaluation."""
+"""Benchmarks for agent-memory-toolkit retrieval evaluation."""
 
 from pathlib import Path
 
