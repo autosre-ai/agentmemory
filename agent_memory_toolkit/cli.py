@@ -678,7 +678,7 @@ def info():
     
     click.echo("Agent Memory Toolkit (AMT)")
     click.echo("=" * 40)
-    click.echo(f"Version: {agent_memory.__version__}")
+    click.echo(f"Version: {agent_memory_toolkit.__version__}")
     click.echo()
     click.echo("Available modules:")
     click.echo("  • store       - SQLite + FTS5 memory storage")
