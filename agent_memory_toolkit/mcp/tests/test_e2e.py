@@ -581,7 +581,12 @@ class TestCLICommands:
         result = runner.invoke(main, ["tools"])
         
         assert result.exit_code == 0
-        assert "Memory Operations:" in result.output
+        assert "Memory Operations (Primary):" in result.output
+        assert "memory_store" in result.output
+        assert "memory_retrieve" in result.output
+        assert "memory_forget" in result.output
+        assert "memory_search" in result.output
+        assert "Memory Operations (Aliases):" in result.output
         assert "memory_add" in result.output
         assert "memory_query" in result.output
         assert "memory_get" in result.output
@@ -604,7 +609,8 @@ class TestCLICommands:
         data = json.loads(result.output)
         assert isinstance(data, list)
         assert len(data) > 0
-        assert any(c["category"] == "Memory Operations" for c in data)
+        assert any(c["category"] == "Memory Operations (Primary)" for c in data)
+        assert any(c["category"] == "Memory Operations (Aliases)" for c in data)
     
     def test_cli_info(self, runner):
         """Test 'amt-mcp info' command."""

@@ -22,6 +22,9 @@ from .auth import (
     verify_token,
     authenticate_user,
     get_current_user,
+    get_current_user_flexible,
+    get_current_user_from_api_key,
+    verify_api_key,
     AuthenticationError,
 )
 from .middleware import RateLimiter, RateLimitMiddleware
@@ -41,6 +44,9 @@ __all__ = [
     "verify_token",
     "authenticate_user",
     "get_current_user",
+    "get_current_user_flexible",
+    "get_current_user_from_api_key",
+    "verify_api_key",
     "AuthenticationError",
     # Middleware
     "RateLimiter",

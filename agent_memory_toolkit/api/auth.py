@@ -1,4 +1,4 @@
-"""JWT authentication for the REST API."""
+"""JWT and API Key authentication for the REST API."""
 
 from __future__ import annotations
 
@@ -6,13 +6,14 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import Depends, HTTPException, status
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, APIKeyHeader
 import jwt
 
 from .config import get_config, APIConfig
 
-# Security scheme for OpenAPI docs
+# Security schemes for OpenAPI docs
 security = HTTPBearer(auto_error=True)
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)
 
 
 class AuthenticationError(Exception):
@@ -121,11 +122,49 @@ def authenticate_user(
     return password == stored_password
 
 
+def verify_api_key(
+    api_key: str,
+    config: Optional[APIConfig] = None,
+) -> str:
+    """
+    Verify an API key.
+    
+    Args:
+        api_key: The API key to verify
+        config: API configuration (uses global config if not provided)
+        
+    Returns:
+        The username associated with the API key
+        
+    Raises:
+        AuthenticationError: If API key is invalid
+    """
+    if config is None:
+        config = get_config()
+    
+    # API keys are stored as "username:secret" in api_keys config
+    api_keys = getattr(config, 'api_keys', {})
+    
+    # Check predefined API keys
+    for username, key in api_keys.items():
+        if key == api_key:
+            return username
+    
+    # Fall back to checking if key matches any user's password (demo mode)
+    # In production, use proper API key storage
+    for username, password in config.api_users.items():
+        expected_key = f"amt_{username}_{password}"
+        if api_key == expected_key:
+            return username
+    
+    raise AuthenticationError("Invalid API key")
+
+
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),
 ) -> str:
     """
-    FastAPI dependency to get the current authenticated user.
+    FastAPI dependency to get the current authenticated user via JWT.
     
     Args:
         credentials: HTTP Bearer credentials from request
@@ -152,6 +191,63 @@ async def get_current_user(
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+
+async def get_current_user_from_api_key(
+    api_key: Optional[str] = Depends(api_key_header),
+) -> Optional[str]:
+    """
+    Get current user from API key header.
+    
+    Returns None if no API key provided (allows falling back to JWT).
+    """
+    if api_key is None:
+        return None
+    
+    try:
+        return verify_api_key(api_key)
+    except AuthenticationError:
+        return None
+
+
+async def get_current_user_flexible(
+    api_key: Optional[str] = Depends(api_key_header),
+    bearer_credentials: Optional[HTTPAuthorizationCredentials] = Depends(
+        HTTPBearer(auto_error=False)
+    ),
+) -> str:
+    """
+    Flexible authentication: accepts either API key or JWT token.
+    
+    Priority:
+    1. X-API-Key header
+    2. Authorization: Bearer token
+    
+    Raises HTTPException if neither is valid.
+    """
+    # Try API key first
+    if api_key:
+        try:
+            return verify_api_key(api_key)
+        except AuthenticationError:
+            pass  # Fall through to try JWT
+    
+    # Try JWT token
+    if bearer_credentials:
+        try:
+            payload = verify_token(bearer_credentials.credentials)
+            username = payload.get("sub")
+            if username:
+                return username
+        except AuthenticationError:
+            pass
+    
+    # Neither worked
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid or missing authentication. Provide X-API-Key header or Authorization: Bearer token.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
 
 
 class RequireAuth:

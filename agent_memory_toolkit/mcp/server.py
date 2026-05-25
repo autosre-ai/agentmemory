@@ -170,10 +170,56 @@ Use these tools to give your agent persistent memory capabilities.
 def _register_memory_tools(mcp: FastMCP, toolkit: MemoryToolkit):
     """Register memory CRUD tools."""
     
+    # Import tool schemas for descriptions
+    from .tools import MEMORY_STORE_SCHEMA, MEMORY_RETRIEVE_SCHEMA, MEMORY_FORGET_SCHEMA, MEMORY_SEARCH_SCHEMA
+    
+    def _store_memory(
+        content: str,
+        source: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        confidence: float = 1.0,
+        metadata: Optional[dict] = None
+    ) -> dict:
+        """Internal function for storing memories."""
+        try:
+            meta = {
+                "source": source or "mcp",
+                "tags": tags or [],
+                "confidence": confidence,
+            }
+            if metadata:
+                meta["extra"] = metadata
+            memory = toolkit.memory_store.add(content, metadata=meta)
+            return {
+                "success": True,
+                "memory_id": memory.id,
+                "content": content[:100] + ("..." if len(content) > 100 else ""),
+                "message": f"Memory stored successfully with ID: {memory.id}"
+            }
+        except Exception as e:
+            logger.error(f"Error storing memory: {e}")
+            return {"success": False, "error": str(e)}
+    
+    # Primary tool: memory_store (as per task requirements)
+    @mcp.tool(
+        name="memory_store",
+        description=MEMORY_STORE_SCHEMA["description"]
+    )
+    def memory_store(
+        content: str,
+        source: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        confidence: float = 1.0,
+        metadata: Optional[dict] = None
+    ) -> dict:
+        """Store a new memory."""
+        return _store_memory(content, source, tags, confidence, metadata)
+    
+    # Alias: memory_add (backwards compatibility)
     @mcp.tool(
         name="memory_add",
         description="""
-Add a new memory to the store.
+Add a new memory to the store (alias for memory_store).
 
 This stores a piece of information that can be retrieved later via search.
 Include relevant tags and source information for better organization.
@@ -194,42 +240,15 @@ Returns the memory ID and confirmation.
         confidence: float = 1.0
     ) -> dict:
         """Add a new memory to the store."""
-        try:
-            metadata = {
-                "source": source or "mcp",
-                "tags": tags or [],
-                "confidence": confidence,
-            }
-            memory = toolkit.memory_store.add(content, metadata=metadata)
-            return {
-                "success": True,
-                "memory_id": memory.id,
-                "content": content[:100] + ("..." if len(content) > 100 else ""),
-                "message": f"Memory stored successfully with ID: {memory.id}"
-            }
-        except Exception as e:
-            logger.error(f"Error adding memory: {e}")
-            return {"success": False, "error": str(e)}
+        return _store_memory(content, source, tags, confidence)
     
-    @mcp.tool(
-        name="memory_query",
-        description="""
-Search memories using full-text search.
-
-Find relevant memories based on a search query. Uses BM25 ranking
-for relevance scoring. Returns matching memories sorted by relevance.
-
-Arguments:
-- query: Search query string
-- limit: Maximum results to return (default: 10)
-
-Returns a list of matching memories with relevance scores.
-        """
-    )
-    def memory_query(query: str, limit: int = 10) -> dict:
-        """Search memories using full-text search."""
+    def _retrieve_memories(query: str, limit: int = 10, min_score: Optional[float] = None) -> dict:
+        """Internal function for retrieving memories."""
         try:
             results = toolkit.memory_store.search_fts(query, limit=limit)
+            # Apply min_score filter if specified
+            if min_score is not None:
+                results = [r for r in results if r.score >= min_score]
             memories = [
                 {
                     "id": r.memory.id,
@@ -246,8 +265,37 @@ Returns a list of matching memories with relevance scores.
                 "memories": memories
             }
         except Exception as e:
-            logger.error(f"Error querying memories: {e}")
+            logger.error(f"Error retrieving memories: {e}")
             return {"success": False, "error": str(e)}
+    
+    # Primary tool: memory_retrieve (as per task requirements)
+    @mcp.tool(
+        name="memory_retrieve",
+        description=MEMORY_RETRIEVE_SCHEMA["description"]
+    )
+    def memory_retrieve(query: str, limit: int = 10, min_score: Optional[float] = None) -> dict:
+        """Retrieve memories by query."""
+        return _retrieve_memories(query, limit, min_score)
+    
+    # Alias: memory_query (backwards compatibility)
+    @mcp.tool(
+        name="memory_query",
+        description="""
+Search memories using full-text search (alias for memory_retrieve).
+
+Find relevant memories based on a search query. Uses BM25 ranking
+for relevance scoring. Returns matching memories sorted by relevance.
+
+Arguments:
+- query: Search query string
+- limit: Maximum results to return (default: 10)
+
+Returns a list of matching memories with relevance scores.
+        """
+    )
+    def memory_query(query: str, limit: int = 10) -> dict:
+        """Search memories using full-text search."""
+        return _retrieve_memories(query, limit)
     
     @mcp.tool(
         name="memory_get",
@@ -312,10 +360,35 @@ Returns confirmation of the update.
             logger.error(f"Error updating memory: {e}")
             return {"success": False, "error": str(e)}
     
+    def _forget_memory(memory_id: str, hard_delete: bool = False) -> dict:
+        """Internal function for deleting memories."""
+        try:
+            toolkit.memory_store.delete(memory_id, hard=hard_delete)
+            action = "permanently deleted" if hard_delete else "deleted"
+            return {
+                "success": True,
+                "memory_id": memory_id,
+                "hard_delete": hard_delete,
+                "message": f"Memory {memory_id} {action} successfully"
+            }
+        except Exception as e:
+            logger.error(f"Error deleting memory: {e}")
+            return {"success": False, "error": str(e)}
+    
+    # Primary tool: memory_forget (as per task requirements)
+    @mcp.tool(
+        name="memory_forget",
+        description=MEMORY_FORGET_SCHEMA["description"]
+    )
+    def memory_forget(memory_id: str, hard_delete: bool = False) -> dict:
+        """Remove a memory from the store."""
+        return _forget_memory(memory_id, hard_delete)
+    
+    # Alias: memory_delete (backwards compatibility)
     @mcp.tool(
         name="memory_delete",
         description="""
-Delete a memory from the store.
+Delete a memory from the store (alias for memory_forget).
 
 Permanently remove a memory. This action cannot be undone.
 
@@ -327,15 +400,87 @@ Returns confirmation of deletion.
     )
     def memory_delete(memory_id: str) -> dict:
         """Delete a memory."""
+        return _forget_memory(memory_id, hard_delete=False)
+    
+    # Primary tool: memory_search (as per task requirements)
+    @mcp.tool(
+        name="memory_search",
+        description=MEMORY_SEARCH_SCHEMA["description"]
+    )
+    def memory_search(
+        query: str,
+        limit: int = 10,
+        method: str = "auto",
+        tags: Optional[List[str]] = None,
+        min_confidence: Optional[float] = None,
+        boost_recent: bool = False,
+        boost_confidence: bool = False,
+        include_deleted: bool = False
+    ) -> dict:
+        """Advanced memory search with filters."""
         try:
-            toolkit.memory_store.delete(memory_id)
+            # Use the appropriate search method
+            if method == "fts":
+                results = toolkit.memory_store.search_fts(
+                    query, 
+                    limit=limit, 
+                    include_deleted=include_deleted,
+                    boost_recent=boost_recent,
+                    boost_confidence=boost_confidence
+                )
+            elif method == "vector":
+                results = toolkit.memory_store.search_vector(
+                    query, 
+                    limit=limit, 
+                    include_deleted=include_deleted
+                )
+            elif method == "hybrid":
+                results = toolkit.memory_store.search_hybrid(
+                    query, 
+                    limit=limit, 
+                    include_deleted=include_deleted
+                )
+            else:  # auto
+                results = toolkit.memory_store.search(
+                    query, 
+                    limit=limit,
+                    method="auto"
+                )
+            
+            # Apply additional filters
+            filtered_results = []
+            for r in results:
+                # Tag filter
+                if tags and hasattr(r.memory, 'metadata') and hasattr(r.memory.metadata, 'tags'):
+                    if not any(t in r.memory.metadata.tags for t in tags):
+                        continue
+                # Confidence filter
+                if min_confidence is not None:
+                    if hasattr(r.memory, 'metadata') and hasattr(r.memory.metadata, 'confidence'):
+                        if r.memory.metadata.confidence < min_confidence:
+                            continue
+                filtered_results.append(r)
+            
+            memories = [
+                {
+                    "id": r.memory.id,
+                    "content": r.memory.content,
+                    "score": r.score,
+                    "match_type": r.match_type,
+                    "metadata": r.memory.metadata.to_dict() if hasattr(r.memory.metadata, 'to_dict') else {},
+                    "created_at": r.memory.created_at.isoformat() if hasattr(r.memory, 'created_at') else None,
+                }
+                for r in filtered_results
+            ]
             return {
                 "success": True,
-                "memory_id": memory_id,
-                "message": f"Memory {memory_id} deleted successfully"
+                "query": query,
+                "method": method,
+                "count": len(memories),
+                "memories": memories
             }
         except Exception as e:
-            logger.error(f"Error deleting memory: {e}")
+            logger.error(f"Error searching memories: {e}")
             return {"success": False, "error": str(e)}
     
     @mcp.tool(

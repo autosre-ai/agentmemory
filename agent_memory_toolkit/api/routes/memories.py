@@ -16,6 +16,7 @@ from ..models import (
     SearchResultModel,
     ErrorResponse,
 )
+from ..schemas import HybridSearchRequest, HybridSearchResponse
 from ..auth import get_current_user
 from ..dependencies import get_memory_store
 
@@ -127,6 +128,66 @@ async def search_memories(
         query=q,
         count=len(results),
     )
+
+
+@router.post(
+    "/search",
+    response_model=HybridSearchResponse,
+    summary="Hybrid search memories",
+    description="""
+    Advanced search combining full-text search (FTS5/BM25) and vector similarity.
+    
+    **Methods:**
+    - `auto`: Automatically selects best method based on configuration
+    - `fts`: Full-text search only (BM25 ranking)
+    - `vector`: Vector similarity search only (requires embeddings)
+    - `hybrid`: Combined FTS + vector with configurable weights
+    
+    **Weights:**
+    - `fts_weight` and `vector_weight` control the balance in hybrid mode
+    - Default is 50/50 split (0.5 each)
+    
+    **Reranking:**
+    - Set `rerank=true` for cross-encoder reranking (improved accuracy)
+    - Requires a reranker to be configured on the server
+    """,
+)
+async def hybrid_search_memories(
+    request: HybridSearchRequest,
+    store=Depends(get_memory_store),
+    current_user: str = Depends(get_current_user),
+) -> HybridSearchResponse:
+    """Hybrid search using FTS + vector similarity with optional reranking."""
+    try:
+        results = store.search(
+            query=request.query,
+            limit=request.limit,
+            method=request.method,
+            rerank=request.rerank,
+            include_deleted=request.include_deleted,
+            fts_weight=request.fts_weight,
+            vector_weight=request.vector_weight,
+            rerank_top_k=request.rerank_top_k,
+        )
+        
+        return HybridSearchResponse(
+            results=[
+                SearchResultModel(
+                    memory=memory_to_response(r.memory),
+                    score=r.score,
+                    match_type=r.match_type,
+                )
+                for r in results
+            ],
+            query=request.query,
+            method=request.method,
+            count=len(results),
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Search failed: {str(e)}",
+        )
 
 
 @router.get(

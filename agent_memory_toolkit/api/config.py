@@ -76,6 +76,17 @@ Authorization: Bearer <your_token>
         "agent": os.environ.get("AMT_AGENT_PASSWORD", "agent"),
     })
     
+    # API keys (alternative to JWT authentication)
+    # Format: {"username": "api_key_value"}
+    # In production, use secure storage for API keys
+    api_keys: dict[str, str] = field(default_factory=lambda: {
+        # Default API keys from environment variables
+        # Set AMT_API_KEY_ADMIN=your_key to enable admin API key auth
+        k.replace("AMT_API_KEY_", "").lower(): v 
+        for k, v in os.environ.items() 
+        if k.startswith("AMT_API_KEY_")
+    })
+    
     @classmethod
     def from_env(cls) -> "APIConfig":
         """Create configuration from environment variables."""

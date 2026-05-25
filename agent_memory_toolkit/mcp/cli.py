@@ -255,13 +255,22 @@ def tools(json_output: bool):
     """
     tool_list = [
         {
-            "category": "Memory Operations",
+            "category": "Memory Operations (Primary)",
             "tools": [
-                {"name": "memory_add", "description": "Add a new memory to the store"},
-                {"name": "memory_query", "description": "Search memories using full-text search"},
+                {"name": "memory_store", "description": "Store a new memory"},
+                {"name": "memory_retrieve", "description": "Retrieve memories by query"},
+                {"name": "memory_forget", "description": "Remove a memory"},
+                {"name": "memory_search", "description": "Advanced search with filters"},
+            ]
+        },
+        {
+            "category": "Memory Operations (Aliases)",
+            "tools": [
+                {"name": "memory_add", "description": "Add a new memory (alias for memory_store)"},
+                {"name": "memory_query", "description": "Search memories (alias for memory_retrieve)"},
+                {"name": "memory_delete", "description": "Delete a memory (alias for memory_forget)"},
                 {"name": "memory_get", "description": "Get a specific memory by ID"},
                 {"name": "memory_update", "description": "Update an existing memory"},
-                {"name": "memory_delete", "description": "Delete a memory"},
                 {"name": "memory_list", "description": "List memories with pagination"},
                 {"name": "memory_history", "description": "Get version history"},
             ]

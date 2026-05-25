@@ -6,13 +6,14 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/autosre-ai/agent-memory-toolkit?style=social)](https://github.com/autosre-ai/agent-memory-toolkit)
 [![CI](https://img.shields.io/github/actions/workflow/status/autosre-ai/agent-memory-toolkit/ci.yml?branch=main&label=CI)](https://github.com/autosre-ai/agent-memory-toolkit/actions)
+[![Docs](https://img.shields.io/badge/docs-mkdocs-blue)](https://autosre-ai.github.io/agent-memory-toolkit/)
 [![PyPI](https://img.shields.io/pypi/v/agent-memory-toolkit?color=blue)](https://pypi.org/project/agent-memory-toolkit/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 **BM25 + Vectors + Knowledge Graph** · **RRF Fusion** · **Ebbinghaus Decay** · **Local-First**
 
-[Features](#-features) · [Install](#-install) · [Quick Start](#-quick-start) · [Benchmarks](#-benchmarks) · [Docs](#-architecture)
+[Features](#-features) · [Install](#-install) · [Quick Start](#-quick-start) · [Benchmarks](#-benchmarks) · [Docs](https://autosre-ai.github.io/agent-memory-toolkit/)
 
 </div>
 
