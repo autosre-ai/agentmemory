@@ -184,9 +184,26 @@ __all__ = [
     "hermes_plugin",
 ]
 
-# Lazy import for hermes_plugin to avoid circular imports
+# Lazy import for hermes_plugin and cluster to avoid circular imports
+import importlib as _importlib
+import sys as _sys
+
+_LAZY_MODULES = {"hermes_plugin", "cluster"}
+_LAZY_LOADING = set()  # Prevent recursion during loading
+
 def __getattr__(name: str):
-    if name == "hermes_plugin":
-        from . import hermes_plugin
-        return hermes_plugin
-    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    if name not in _LAZY_MODULES:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    
+    # Prevent recursion
+    if name in _LAZY_LOADING:
+        raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+    
+    _LAZY_LOADING.add(name)
+    try:
+        module = _importlib.import_module(f".{name}", __name__)
+        # Register in sys.modules and as module attribute
+        setattr(_sys.modules[__name__], name, module)
+        return module
+    finally:
+        _LAZY_LOADING.discard(name)

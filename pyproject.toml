@@ -74,6 +74,9 @@ api = [
     "pyjwt>=2.8.0",
     "pydantic>=2.5.0",
 ]
+cluster = [
+    "redis[hiredis]>=5.0.0",
+]
 dev = [
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
@@ -96,7 +99,7 @@ llamaindex = [
     "llama-index-core>=0.10.0",
 ]
 all = [
-    "agent-memory-toolkit[embeddings,compression,mcp,api,dev,docs,langchain,llamaindex]",
+    "agent-memory-toolkit[embeddings,compression,mcp,api,cluster,dev,docs,langchain,llamaindex]",
 ]
 
 [project.scripts]
