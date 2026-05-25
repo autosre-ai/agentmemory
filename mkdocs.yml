@@ -66,6 +66,7 @@ nav:
   - Clustering: clustering.md
   - Search: search.md
   - Temporal: temporal.md
+  - Graph: graph.md
   - Observability: observability.md
   - Benchmarks: benchmarks.md
   - Architecture: architecture.md
