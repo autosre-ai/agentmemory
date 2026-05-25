@@ -1,56 +1,65 @@
-"""Agent Memory Toolkit I/O Module.
+"""Data Persistence Module - Import/Export and database persistence for memories.
 
-Provides export and import functionality for memory data in multiple formats:
-- JSONL (JSON Lines)
-- Parquet (optional, requires pyarrow)
-- SQLite (dump/restore)
-- CSV
-- Markdown (human-readable)
+This module provides tools for persisting memories to various storage backends
+and importing/exporting memory data in different formats.
 
-Example:
-    >>> from agent_memory_toolkit.io import export_jsonl, import_jsonl
-    >>> export_jsonl(store, "memories.jsonl")
-    >>> import_jsonl(store, "memories.jsonl")
+Components:
+- JSON I/O: Import and export memories to/from JSON files
+- SQLite Persistence: Persistent storage using SQLite database
+- PostgreSQL Persistence: Production-ready PostgreSQL storage backend
 """
 
-from .formats import (
-    # Core export/import functions
-    export_jsonl,
-    import_jsonl,
-    export_csv,
-    import_csv,
-    export_markdown,
-    export_sqlite_dump,
-    import_sqlite_dump,
-    # Parquet functions (optional)
-    export_parquet,
-    import_parquet,
-    PARQUET_AVAILABLE,
-    # Utility classes
-    ExportConfig,
-    ImportConfig,
+from .json_io import (
+    JSONExporter,
+    JSONImporter,
+    JSONIOConfig,
     ExportResult,
     ImportResult,
-    ExportFormat,
+    export_to_json,
+    import_from_json,
+    export_to_jsonl,
+    import_from_jsonl,
+)
+
+from .sqlite_io import (
+    SQLiteBackend,
+    SQLiteConfig,
+    SQLiteConnectionPool,
+    SQLiteMigration,
+    SQLiteMigrationManager,
+)
+
+from .postgres_io import (
+    PostgresBackend,
+    PostgresConfig,
+    PostgresConnectionPool,
+    PostgresMigration,
+    PostgresMigrationManager,
+    AsyncPostgresBackend,
 )
 
 __all__ = [
-    # Core functions
-    "export_jsonl",
-    "import_jsonl",
-    "export_csv",
-    "import_csv",
-    "export_markdown",
-    "export_sqlite_dump",
-    "import_sqlite_dump",
-    # Parquet
-    "export_parquet",
-    "import_parquet",
-    "PARQUET_AVAILABLE",
-    # Classes
-    "ExportConfig",
-    "ImportConfig",
+    # JSON I/O
+    "JSONExporter",
+    "JSONImporter",
+    "JSONIOConfig",
     "ExportResult",
     "ImportResult",
-    "ExportFormat",
+    "export_to_json",
+    "import_from_json",
+    "export_to_jsonl",
+    "import_from_jsonl",
+    # SQLite persistence
+    "SQLiteBackend",
+    "SQLiteConfig",
+    "SQLiteConnectionPool",
+    "SQLiteMigration",
+    "SQLiteMigrationManager",
+    # PostgreSQL persistence
+    "PostgresBackend",
+    "PostgresConfig",
+    "PostgresConnectionPool",
+    "PostgresMigration",
+    "PostgresMigrationManager",
+    "AsyncPostgresBackend",
 ]

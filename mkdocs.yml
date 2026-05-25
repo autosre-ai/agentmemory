@@ -68,6 +68,7 @@ nav:
   - Temporal: temporal.md
   - Graph: graph.md
   - Compression: compression.md
+  - Persistence: persistence.md
   - Observability: observability.md
   - Benchmarks: benchmarks.md
   - Architecture: architecture.md
