@@ -5,6 +5,60 @@ All notable changes to Agent Memory Toolkit will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-05-26
+
+### Added
+
+- **MCP Server** - Full Model Context Protocol integration
+  - `amt-mcp serve` command for stdio and SSE transports
+  - `amt-mcp config <client>` for automatic client configuration
+  - All memory operations exposed as MCP tools
+  - Works with Claude Desktop, Cursor, Continue, and other MCP clients
+  - Security validation and compression tools available via MCP
+
+- **REST API** - HTTP API for external integrations
+  - FastAPI-based server with automatic OpenAPI documentation
+  - JWT authentication with configurable secrets
+  - All memory CRUD operations (`/api/v1/memories/*`)
+  - Extraction endpoint (`/api/v1/extract`)
+  - Compression endpoint (`/api/v1/compress`)
+  - Health check and metrics endpoints
+  - Docker-ready with uvicorn server
+
+- **LangChain Integration** - Memory adapter for LangChain
+  - `AgentMemoryToolkitChatMemory` for conversational agents
+  - Automatic memory extraction from messages
+  - Hybrid search integration
+
+- **LlamaIndex Integration** - Storage adapter for LlamaIndex
+  - `AgentMemoryToolkitStorage` for document stores
+  - Vector index compatibility
+  - Metadata filtering support
+
+- **Hermes Plugin** - Native Hermes Agent integration
+  - Context injection for agent sessions
+  - CLI commands for memory management
+  - Automatic memory extraction from conversations
+
+- **Memory Consolidation** - Background memory optimization
+  - Automatic deduplication of similar memories
+  - Conflict detection and resolution
+  - Scheduled consolidation tasks
+  - Similarity-based merging
+
+### Changed
+
+- Improved BM25 + Vector hybrid scoring with Reciprocal Rank Fusion (RRF)
+- Enhanced Ebbinghaus decay with configurable half-life parameters
+- Better error handling throughout all modules
+- Updated documentation with architecture diagrams
+
+### Fixed
+
+- Memory version history tracking edge cases
+- FTS5 index synchronization issues
+- Embedding dimension mismatch handling
+
 ## [0.1.0] - 2025-05-15
 
 ### Added
