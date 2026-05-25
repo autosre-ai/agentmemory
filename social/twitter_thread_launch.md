@@ -1,4 +1,7 @@
-# Agent Memory Toolkit Launch Twitter Thread
+# Agent Memory Toolkit Twitter Content Archive
+
+> **Note:** Primary launch content has moved to `twitter_threads/launch_thread.md`
+> This file is kept for reference and additional content.
 
 Copy-paste ready. Post as a thread (each section = 1 tweet).
 

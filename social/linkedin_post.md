@@ -1,4 +1,7 @@
-# Agent Memory Toolkit LinkedIn Launch Post
+# Agent Memory Toolkit LinkedIn Content Archive
+
+> **Note:** Primary launch content has moved to `linkedin_posts/launch_post.md`
+> This file is kept for reference and additional content.
 
 Copy-paste ready. Choose the version that fits your style.
 
