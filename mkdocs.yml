@@ -63,6 +63,10 @@ nav:
   - Quick Start: quickstart.md
   - API Reference: api-reference.md
   - MCP Server: mcp-server.md
+  - Clustering: clustering.md
+  - Search: search.md
+  - Temporal: temporal.md
+  - Observability: observability.md
   - Benchmarks: benchmarks.md
   - Architecture: architecture.md
 
