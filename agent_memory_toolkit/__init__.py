@@ -192,13 +192,15 @@ __all__ = [
     "graph",
     # IO/Persistence module
     "io",
+    # LLM module
+    "llm",
 ]
 
 # Lazy import for hermes_plugin, cluster, and search to avoid circular imports
 import importlib as _importlib
 import sys as _sys
 
-_LAZY_MODULES = {"hermes_plugin", "cluster", "search", "temporal", "observability", "graph", "io"}
+_LAZY_MODULES = {"hermes_plugin", "cluster", "search", "temporal", "observability", "graph", "io", "llm"}
 _LAZY_LOADING = set()  # Prevent recursion during loading
 
 def __getattr__(name: str):

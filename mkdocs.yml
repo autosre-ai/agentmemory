@@ -69,6 +69,7 @@ nav:
   - Graph: graph.md
   - Compression: compression.md
   - Persistence: persistence.md
+  - LLM Integrations: llm.md
   - Observability: observability.md
   - Benchmarks: benchmarks.md
   - Architecture: architecture.md
