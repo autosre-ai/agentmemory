@@ -67,6 +67,7 @@ nav:
   - Search: search.md
   - Temporal: temporal.md
   - Graph: graph.md
+  - Compression: compression.md
   - Observability: observability.md
   - Benchmarks: benchmarks.md
   - Architecture: architecture.md
