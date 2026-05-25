@@ -61,6 +61,7 @@ markdown_extensions:
 nav:
   - Home: index.md
   - Quick Start: quickstart.md
+  - CLI: cli.md
   - API Reference: api-reference.md
   - MCP Server: mcp-server.md
   - Clustering: clustering.md
