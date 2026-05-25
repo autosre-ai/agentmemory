@@ -182,13 +182,15 @@ __all__ = [
     "NamespaceNotFoundError",
     # Hermes plugin
     "hermes_plugin",
+    # Search module
+    "search",
 ]
 
-# Lazy import for hermes_plugin and cluster to avoid circular imports
+# Lazy import for hermes_plugin, cluster, and search to avoid circular imports
 import importlib as _importlib
 import sys as _sys
 
-_LAZY_MODULES = {"hermes_plugin", "cluster"}
+_LAZY_MODULES = {"hermes_plugin", "cluster", "search"}
 _LAZY_LOADING = set()  # Prevent recursion during loading
 
 def __getattr__(name: str):
